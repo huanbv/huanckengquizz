@@ -55,22 +55,16 @@ class WelcomeScreen extends StatelessWidget {
                 children: [
                   _gameModeButton(
                     easyGameMode,
-                    Image.asset('lib/assets/backgrounds/easy_mode.jpeg').image,
-                    Colors.blue,
                     context,
                   ),
                   const SizedBox(height: 20),
                   _gameModeButton(
                     mediumGameMode,
-                    Image.asset('lib/assets/backgrounds/medium_mode.jpg').image,
-                    Colors.amber,
                     context,
                   ),
                   const SizedBox(height: 20),
                   _gameModeButton(
                     hardGameMode,
-                    Image.asset('lib/assets/backgrounds/hard_mode.jpg').image,
-                    Colors.red,
                     context,
                   ),
                 ],
@@ -82,10 +76,13 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  _gameModeButton(GameMode mode, ImageProvider backgroundImage, Color color,
-      BuildContext context) {
-    return GestureDetector(
-      onTap: () {
+  _gameModeButton(
+    GameMode mode,
+    BuildContext context,
+  ) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      onPressed: () {
         Navigator.of(context).push(
           CupertinoPageRoute(
             builder: (context) => SummaryScreen(mode: mode),
@@ -108,7 +105,7 @@ class WelcomeScreen extends StatelessWidget {
         child: Stack(
           children: [
             Image(
-              image: backgroundImage,
+              image: mode.backgroundImage,
               fit: BoxFit.cover,
               width: double.infinity,
               height: double.infinity,
@@ -117,8 +114,8 @@ class WelcomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    color.withOpacity(0.35),
-                    color.withOpacity(0.5),
+                    mode.color.withOpacity(0.35),
+                    mode.color.withOpacity(0.5),
                   ],
                 ),
               ),
@@ -134,6 +131,7 @@ class WelcomeScreen extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
+                      fontFamily: GoogleFonts.francoisOne().fontFamily,
                       shadows: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.25),
