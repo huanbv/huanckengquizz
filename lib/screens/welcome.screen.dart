@@ -54,17 +54,17 @@ class WelcomeScreen extends StatelessWidget {
               Column(
                 children: [
                   _gameModeButton(
-                    easyGameMode,
+                    EASY_GAMEMODE,
                     context,
                   ),
                   const SizedBox(height: 20),
                   _gameModeButton(
-                    mediumGameMode,
+                    MEDIUM_GAMEMODE,
                     context,
                   ),
                   const SizedBox(height: 20),
                   _gameModeButton(
-                    hardGameMode,
+                    HARD_GAMEMODE,
                     context,
                   ),
                 ],

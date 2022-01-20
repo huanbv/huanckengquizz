@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:huanckengquizz/models/game.dart';
 
-final easyGameMode = GameMode(
+final EASY_GAMEMODE = GameMode(
   name: 'Easy',
   backgroundImage: Image.asset('lib/assets/backgrounds/easy_mode.jpeg').image,
   questionsLimit: 10,
@@ -11,7 +11,7 @@ final easyGameMode = GameMode(
   color: Colors.blue,
 );
 
-final mediumGameMode = GameMode(
+final MEDIUM_GAMEMODE = GameMode(
   name: 'Medium',
   backgroundImage: Image.asset('lib/assets/backgrounds/medium_mode.jpg').image,
   questionsLimit: 10,
@@ -21,7 +21,7 @@ final mediumGameMode = GameMode(
   color: Colors.amber,
 );
 
-final hardGameMode = GameMode(
+final HARD_GAMEMODE = GameMode(
   name: 'Hard',
   backgroundImage: Image.asset('lib/assets/backgrounds/hard_mode.jpg').image,
   questionsLimit: 10,
