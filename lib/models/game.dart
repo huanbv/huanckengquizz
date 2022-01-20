@@ -19,6 +19,7 @@ class GameMode {
 class Game {
   final List<Question> questions;
   final GameMode mode;
+  int scores = 0;
 
   Game(this.questions, this.mode);
 

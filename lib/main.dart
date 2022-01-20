@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:huanckengquizz/screens/welcome.screen.dart';
 
 void main() {
@@ -14,7 +15,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'EngQuizz',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        fontFamily: GoogleFonts.francoisOne().fontFamily,
+        textTheme: GoogleFonts.francoisOneTextTheme(
+          Theme.of(context).textTheme,
+        ),
       ),
       home: const WelcomeScreen(),
     );

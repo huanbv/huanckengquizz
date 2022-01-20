@@ -11,8 +11,8 @@ class Question {
     required this.suggestionImage,
     required this.answer,
     required this.noises,
-  });
+  }) : assert(noises.length == 3);
 
   /// getting shuffled answers for this question
-  List<String> getShuffledAnswers() {}
+  // List<String> getShuffledAnswers() {}
 }
