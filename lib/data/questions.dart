@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:huanckengquizz/models/question.dart';
 
+// download here: https://www.flaticon.com/search?word=animals&type=icon
+
 final questions = [
   Question(
     suggestionImage: Image.asset('assets/animals/bee.svg').image,
@@ -33,9 +35,9 @@ final questions = [
     noises: ['Duck', 'Peacock', 'Ostrich'],
   ),
   Question(
-    suggestionImage: Image.asset('assets/animals/bee.svg').image,
-    answer: 'Bee',
-    noises: ['Fly', 'Bug', 'Butterfly'],
+    suggestionImage: Image.asset('assets/animals/mosquito.svg').image,
+    answer: 'Mosquito',
+    noises: ['Dragonfly', 'Flies', 'Mantis'],
   ),
   Question(
     suggestionImage: Image.asset('assets/animals/bear.svg').image,
@@ -45,7 +47,7 @@ final questions = [
   Question(
     suggestionImage: Image.asset('assets/animals/lion.svg').image,
     answer: 'Lion',
-    noises: ['Tiger', 'Cat', 'Cheetah'],
+    noises: ['Tiger', 'Fox', 'Cheetah'],
   ),
   Question(
     suggestionImage: Image.asset('assets/animals/dolphin.svg').image,
