@@ -1,10 +1,14 @@
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+
 import 'package:huanckengquizz/data/game_modes.dart';
 import 'package:huanckengquizz/models/game.dart';
+import 'package:huanckengquizz/models/question.dart';
 import 'package:huanckengquizz/screens/summary.screen.dart';
+
+import '../constants.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({Key? key}) : super(key: key);
@@ -19,15 +23,15 @@ class WelcomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                children: [
-                  const Text(
+                children: const [
+                  Text(
                     'EngQuizz',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 40,
                     ),
                   ),
-                  const Text(
+                  Text(
                     '.',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
@@ -131,7 +135,7 @@ class WelcomeScreen extends StatelessWidget {
                       color: Colors.white,
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
-                      fontFamily: GoogleFonts.francoisOne().fontFamily,
+                      fontFamily: appFontFamily,
                       shadows: [
                         BoxShadow(
                           color: Colors.black.withOpacity(0.25),

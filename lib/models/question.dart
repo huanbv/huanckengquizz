@@ -23,6 +23,24 @@ class Question {
         assert(answers.where((element) => element.isTrue).length ==
             1); // ràng buộc chỉ được có 1 đáp áp đúng trong số 4 đáp án
 
-  /// getting shuffled answers for this question
-  // List<String> getShuffledAnswers() {}
+  static Question fromListImagePaths(List<String> imagePaths) {
+    imagePaths.shuffle(); // shuffling to get different right answer
+    final trueImagePath = imagePaths.first;
+
+    return Question(
+      suggestionImage: Image.asset(trueImagePath).image,
+      answers:
+          imagePaths.map((path) => Answer(title: getAnimalNameFromPath(path), isTrue: path == trueImagePath)).toList(),
+    );
+  }
+
+  static getAnimalNameFromPath(String path) {
+    return path.split('lib/assets/questions/')[1].split('.')[0].split('/')[1].toUpperCase();
+  }
+
+  /// lấy danh sách xáo trộn đáp án cho câu hỏi hiện tại
+  List<Answer> getShuffledAnswers() {
+    answers.shuffle(); // xáo trộn thứ tự đáp án trong danh sách
+    return answers.toList();
+  }
 }

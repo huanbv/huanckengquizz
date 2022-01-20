@@ -1,9 +1,12 @@
-import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'package:fluentui_system_icons/fluentui_system_icons.dart';
+
 import 'package:huanckengquizz/models/game.dart';
 import 'package:huanckengquizz/screens/playing.screen.dart';
+
+import '../constants.dart';
 
 class SummaryScreen extends StatelessWidget {
   const SummaryScreen({
@@ -127,7 +130,7 @@ class SummaryScreen extends StatelessWidget {
                         color: Colors.white,
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        fontFamily: GoogleFonts.francoisOne().fontFamily,
+                        fontFamily: appFontFamily,
                         shadows: [
                           BoxShadow(
                             color: Colors.black.withOpacity(0.25),
@@ -185,7 +188,7 @@ class SummaryScreen extends StatelessWidget {
                 color: Colors.white,
                 fontWeight: FontWeight.w500,
                 fontSize: 24,
-                fontFamily: GoogleFonts.francoisOne().fontFamily,
+                fontFamily: appFontFamily,
               ),
             ),
             const SizedBox(width: 30),

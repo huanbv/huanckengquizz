@@ -1,15 +1,17 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:huanckengquizz/data/questions.dart';
 import 'package:huanckengquizz/game_controller.dart';
 import 'package:huanckengquizz/models/game.dart';
 import 'package:huanckengquizz/models/question.dart';
 import 'package:huanckengquizz/screens/result.screen.dart';
 import 'package:provider/provider.dart';
+
+import '../constants.dart';
 
 class PlayingScreen extends StatefulWidget {
   const PlayingScreen({
@@ -29,41 +31,17 @@ class _PlayingScreenState extends State<PlayingScreen> {
   @override
   void initState() {
     super.initState();
-
-    // // khởi tạo game controller
-    controller = GameController(
-      mode: widget.mode,
-      onTimerTick: (controller) {
-        print('tick...');
-        setState(() {
-          controller = controller;
-        });
-      },
-      onTimeout: () {
-        // chuyển qua màn hình kết quả
-        // truyền thông tin game
-        Navigator.of(context).push(
-          CupertinoPageRoute(
-            builder: (context) => ResultScreen(
-              mode: widget.mode,
-              scores: controller.scores,
-            ),
-          ),
-        );
-      },
-    );
-
-    controller.start();
+    // controller.start();
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   controller = context.watch<GameController>();
-  // }
-
-  void onTimerTick() {}
-  void onTimeout() {}
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    controller = context.read<GameController>();
+    controller.start(widget.mode, () {
+      log('timeout...');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,6 +79,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       return Row(
         children: [
           Icon(iconData, size: 30, color: color),
+          const SizedBox(width: 5),
           Text(
             title,
             style: TextStyle(fontSize: 24, color: color),
@@ -123,15 +102,17 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(color: Colors.blue.shade300),
                 ),
-                child: Icon(FluentIcons.arrow_left_24_regular),
+                child: const Icon(FluentIcons.arrow_left_24_regular),
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
             ),
 
             // centered title
             Text(
-              "Question ${controller.currentQuestionIndex}/${controller.questions.length}",
-              style: TextStyle(fontSize: 30),
+              "Question ${controller.currentQuestionIndex}/${controller.activeQuestions.length}",
+              style: const TextStyle(fontSize: 30),
             ),
 
             // pause/resume button
@@ -144,8 +125,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
                   border: Border.all(color: Colors.blue.shade300),
                 ),
                 child: controller.playing
-                    ? Icon(FluentIcons.pause_24_regular)
-                    : Icon(FluentIcons.play_24_regular),
+                    ? const Icon(FluentIcons.pause_24_regular)
+                    : const Icon(FluentIcons.play_24_regular),
               ),
               onPressed: () {},
             ),
@@ -201,8 +182,8 @@ class _PlayingScreenState extends State<PlayingScreen> {
             child: Text(
               answer.title,
               style: TextStyle(
-                fontFamily: GoogleFonts.francoisOne().fontFamily,
-                fontSize: 24,
+                fontFamily: appFontFamily,
+                // fontSize: 20,
               ),
             ),
           ),
@@ -211,8 +192,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
       );
     }
 
-    var _shuffledAnswers =
-        controller.getShuffledAnswerForQuestion(controller.currentQuestion);
+    var _shuffledAnswers = controller.currentQuestion.getShuffledAnswers();
     const gap = 25.0;
 
     return Column(
