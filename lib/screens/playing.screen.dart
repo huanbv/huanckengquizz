@@ -29,6 +29,9 @@ class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProvider
   late GameController controller;
 
   // các đối tượng thực hiện animation
+  late bool animatingRightScore = false;
+  double scoreBottomPosition = -200;
+
   late AnimationController rightAnswerAnimationController;
   late Animation<double> rightAnswerBottomPositionAnimation;
   late Animation<double> rightAnswerOpacityAnimation;
@@ -80,6 +83,9 @@ class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProvider
       onTimeout: () {
         log('timeout...');
 
+        // lưu điểm cao nhất
+        controller.mode.saveScores(controller.scores);
+
         // push to the result screen
         // pushReplacement to prevent user back to the playing screen (but can still back to the summary screen)
         Navigator.of(context).pushReplacement(
@@ -89,20 +95,28 @@ class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProvider
         );
       },
       onAnswerPicked: (bool isTrue, int receivedScores) {
+        // đặt cờ thay đổi màu chữ
+        animatingRightScore = isTrue;
+
+        if (!isTrue) {
+          sizeTween.begin = 1;
+          sizeTween.end = 0;
+          // điểm trừ thì rơi từ trên xuống
+          bottomPositionTween.begin = -10;
+          bottomPositionTween.end = scoreBottomPosition;
+        } else {
+          // điểm cộng thì đẩy từ dưới lên
+          bottomPositionTween.begin = scoreBottomPosition;
+          bottomPositionTween.end = -10;
+        }
+
         rightAnswerAnimationController.forward().then((value) {
-          // bottomPositionTween.begin = 0;
-          // bottomPositionTween.end = -50;
-
-          // opacityTween.begin = 0;
-          // opacityTween.end = 0;
-
+          // size = 0 để reverse animation về vị trí cũ không hiển thị
           sizeTween.begin = 0;
           sizeTween.end = 0;
 
-          // cheating
+          // cheating - but works well..
           rightAnswerAnimationController.reverse().then((value) {
-            // opacityTween.begin = 1;
-            // opacityTween.end = 0;
             sizeTween.begin = 0;
             sizeTween.end = 1;
           });
@@ -180,15 +194,28 @@ class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProvider
       children: [
         // back button
         _iconButton(CupertinoIcons.clear, () {
-          controller.dispose();
-          Navigator.of(context).pop();
+          if (controller.playing) {
+            controller.timer.cancel(); // hủy timer để ngăn chặn chồng chéo timer
+            Navigator.of(context).pop();
+          }
         }),
 
-        _iconButton(CupertinoIcons.pause, () {}),
+        // nút tạm dừng game
+        Selector<GameController, bool>(
+          builder: (context, isTimerActive, child) {
+            return _iconButton(
+              isTimerActive ? CupertinoIcons.pause : CupertinoIcons.play,
+              isTimerActive ? controller.pause : controller.resume,
+            );
+          },
+          selector: (p0, p1) => p1.timer.isActive,
+        ),
 
         // next button
         _iconButton(FluentIcons.next_24_regular, () {
-          controller.next();
+          if (controller.playing) {
+            controller.next();
+          }
         }),
       ],
     );
@@ -307,10 +334,10 @@ class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProvider
                     child: Transform.scale(
                       scale: rightAnswerSizeAnimation.value,
                       child: Text(
-                        "+${controller.mode.bonusScores}",
-                        style: const TextStyle(
-                          color: Colors.green,
-                          fontSize: 40,
+                        animatingRightScore ? "+${controller.mode.bonusScores}" : "-${controller.mode.minusScores}",
+                        style: TextStyle(
+                          color: animatingRightScore ? Colors.green : Colors.red,
+                          fontSize: 72,
                         ),
                       ),
                     ),
@@ -318,27 +345,6 @@ class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProvider
                 );
               },
             ),
-
-            // điểm trừ
-            // AnimatedBuilder(
-            //   animation: rightAnswerAnimationController,
-            //   builder: (context, child) {
-            //     return Positioned(
-            //       right: 0,
-            //       bottom: rightAnswerBottomPositionAnimation.value,
-            //       child: Opacity(
-            //         opacity: rightAnsertOpacityAnimation.value,
-            //         child: Text(
-            //           "+${controller.mode.bonusScores}",
-            //           style: const TextStyle(
-            //             color: Colors.red,
-            //             fontSize: 30,
-            //           ),
-            //         ),
-            //       ),
-            //     );
-            //   },
-            // ),
           ],
         ),
       ],
@@ -378,7 +384,7 @@ class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProvider
               ),
             ),
           ),
-          onPressed: () => controller.onAnswerPressed(answer),
+          onPressed: () => controller.playing ? controller.onAnswerPressed(answer) : null,
         ),
       );
     }

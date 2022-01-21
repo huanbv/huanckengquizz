@@ -157,29 +157,29 @@ class WelcomeScreen extends StatelessWidget {
                   ),
 
                   // showing best scores of the mode
-                  FutureBuilder<int>(
-                    future: mode.getBestScores(),
-                    builder: (context, snapshot) {
-                      return snapshot.hasData
-                          ? Text(
-                              "Best: ${snapshot.data!}",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20,
-                                fontWeight: FontWeight.w200,
-                                fontFamily: appFontFamily,
-                                shadows: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.5),
-                                    offset: const Offset(3, 3),
-                                    blurRadius: 10,
-                                  ),
-                                ],
-                              ),
-                            )
-                          : const Text("---");
-                    },
-                  ),
+                  // FutureBuilder<int>(
+                  //   future: mode.getBestScores(),
+                  //   builder: (context, snapshot) {
+                  //     return snapshot.hasData
+                  //         ? Text(
+                  //             "Best: ${snapshot.data!}",
+                  //             style: TextStyle(
+                  //               color: Colors.white,
+                  //               fontSize: 20,
+                  //               fontWeight: FontWeight.w200,
+                  //               fontFamily: appFontFamily,
+                  //               shadows: [
+                  //                 BoxShadow(
+                  //                   color: Colors.black.withOpacity(0.5),
+                  //                   offset: const Offset(3, 3),
+                  //                   blurRadius: 10,
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //           )
+                  //         : const Text("---");
+                  //   },
+                  // ),
                 ],
               ),
             ),

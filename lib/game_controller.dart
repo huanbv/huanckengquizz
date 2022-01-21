@@ -57,7 +57,11 @@ class GameController extends ChangeNotifier {
         // dừng timer
         timer.cancel();
 
-        onTimeout(); // gọi hàm callback để thực thi ở màn hình
+        // chờ 2s trước khi chuyển qua màn hình kết quả
+        Timer(const Duration(seconds: 2), () {
+          onTimeout(); // gọi hàm callback để thực thi ở màn hình
+        });
+
         return;
       }
 
@@ -76,23 +80,24 @@ class GameController extends ChangeNotifier {
     startTimer();
   }
 
+  /// hàm chuyển qua câu hỏi tiếp theo
   void next() {
+    // kiểm tra xem đã là câu cuối cùng hay chưa? nếu rồi thì chuyển qua màn hình kết quả
     if (currentQuestionIndex == activeQuestions.length) {
       timer.cancel();
-      onTimeout();
+
+      // chờ 2s trước khi chuyển qua màn hình kết quả
+      Timer(const Duration(seconds: 2), () {
+        onTimeout(); // gọi hàm callback để thực thi ở màn hình
+      });
+
       return;
     }
 
     currentQuestionIndex++;
     // trộn đáp án đúng của câu kế tiếp
-    activeQuestions[currentQuestionIndex - 1].shuffleTheRightAnswer();
+    currentQuestion.shuffleTheRightAnswer();
     notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    timer.cancel();
-    super.dispose();
   }
 
   /// lấy danh sách câu hỏi cho game hiện tại
