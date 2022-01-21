@@ -21,10 +21,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    // khởi tạo một Future để load các câu hỏi, khi load xong mới khởi tạo MaterialApp
     return FutureBuilder<List<Question>>(
       future: loadQuestions(context),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {}
+        if (!snapshot.hasData) {
+          return const Center(
+            child: Text('Unable to load questions data.'),
+          );
+        }
 
         return ChangeNotifierProvider(
           // cung cấp 1 new instance của GameController cho toàn bộ app
@@ -43,6 +48,7 @@ class MyApp extends StatelessWidget {
   }
 }
 
+/// Hàm load các câu hỏi dựa vào việc đọc thư mục assets
 Future<List<Question>> loadQuestions(BuildContext context) async {
   log('...loading question images...');
 

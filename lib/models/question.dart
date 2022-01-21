@@ -20,8 +20,9 @@ class Question {
     required this.suggestionImage,
     required this.answers,
   })  : assert(answers.length == 4), // ràng buộc số lượng đáp án phải là 4
-        assert(answers.where((element) => element.isTrue).length ==
-            1); // ràng buộc chỉ được có 1 đáp áp đúng trong số 4 đáp án
+        assert(
+          answers.where((element) => element.isTrue).length == 1,
+        ); // ràng buộc chỉ được có 1 đáp áp đúng trong số 4 đáp án
 
   static Question fromListImagePaths(List<String> imagePaths) {
     imagePaths.shuffle(); // shuffling to get different right answer
@@ -29,8 +30,12 @@ class Question {
 
     return Question(
       suggestionImage: Image.asset(trueImagePath).image,
-      answers:
-          imagePaths.map((path) => Answer(title: getAnimalNameFromPath(path), isTrue: path == trueImagePath)).toList(),
+      answers: imagePaths
+          .map((path) => Answer(
+                title: getAnimalNameFromPath(path),
+                isTrue: path == trueImagePath,
+              ))
+          .toList(),
     );
   }
 

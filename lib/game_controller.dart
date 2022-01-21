@@ -3,20 +3,19 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 
-import 'models/game.dart';
+import 'models/game_mode.dart';
 import 'models/question.dart';
 
 // lớp xử lý logic game
 class GameController extends ChangeNotifier {
   late List<Question> allQuestions; // danh sách tất cả câu hỏi
-  late GameMode mode;
-  late int scores;
-  late int counter;
+  late GameMode mode; // game mode người chơi đã chọn ở màn hình 1
+  late int scores; // tổng điểm khi bắt đầu game
+  late int counter; // biến đếm thời gian còn lại của game
   late List<Question> activeQuestions; // danh sách câu hỏi cho game hiện tại
   late int currentQuestionIndex; // Thứ tự hiện tại của câu hỏi
-  late Timer timer;
+  late Timer timer; // timer dùng cho việc đếm
   late void Function() onTimeout; // hàm gọi khi thời gian game kết thúc
-  // late void Function(GameController) onTimerTick; // hàm gọi mỗi giây khi thời gian game trôi qua
 
   // câu hỏi hiện tại dựa vào index
   Question get currentQuestion => activeQuestions[currentQuestionIndex];
@@ -29,6 +28,7 @@ class GameController extends ChangeNotifier {
   });
 
   void start(GameMode mode, void Function() onTimeout) {
+    this.mode = mode;
     this.onTimeout = onTimeout;
 
     activeQuestions = _getShuffledQuestions(mode.questionsLimit);
@@ -68,6 +68,10 @@ class GameController extends ChangeNotifier {
 
   void resume() {
     startTimer();
+  }
+
+  void dispose() {
+    timer.cancel();
   }
 
   /// lấy danh sách câu hỏi cho game hiện tại

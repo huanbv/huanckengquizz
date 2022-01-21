@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:huanckengquizz/models/game.dart';
+import 'package:huanckengquizz/models/game_mode.dart';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({

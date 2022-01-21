@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:huanckengquizz/models/game.dart';
+import 'package:huanckengquizz/models/game_mode.dart';
 
 final EASY_GAMEMODE = GameMode(
   name: 'Easy',
@@ -18,7 +18,7 @@ final MEDIUM_GAMEMODE = GameMode(
   countdownSeconds: 20,
   bonusScores: 20,
   minusScores: 10,
-  color: Colors.amber,
+  color: Colors.orange,
 );
 
 final HARD_GAMEMODE = GameMode(
@@ -28,5 +28,5 @@ final HARD_GAMEMODE = GameMode(
   countdownSeconds: 10,
   bonusScores: 30,
   minusScores: 15,
-  color: Colors.red,
+  color: Colors.purple,
 );

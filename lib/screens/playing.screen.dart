@@ -1,14 +1,11 @@
-import 'dart:async';
 import 'dart:developer';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:huanckengquizz/game_controller.dart';
-import 'package:huanckengquizz/models/game.dart';
+import 'package:huanckengquizz/models/game_mode.dart';
 import 'package:huanckengquizz/models/question.dart';
-import 'package:huanckengquizz/screens/result.screen.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
@@ -37,7 +34,10 @@ class _PlayingScreenState extends State<PlayingScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    controller = context.read<GameController>();
+
+    log('didChangeDependencies...');
+
+    controller = Provider.of<GameController>(context, listen: false);
     controller.start(widget.mode, () {
       log('timeout...');
     });
@@ -67,6 +67,9 @@ class _PlayingScreenState extends State<PlayingScreen> {
               // các đáp án
               const SizedBox(height: 20),
               _answerButtons(),
+
+              const SizedBox(height: 20),
+              _navigationButtons(),
             ],
           ),
         ),
@@ -74,61 +77,125 @@ class _PlayingScreenState extends State<PlayingScreen> {
     );
   }
 
-  _gameMeta() {
-    _gameMetaItem(IconData iconData, String title, Color color) {
-      return Row(
-        children: [
-          Icon(iconData, size: 30, color: color),
-          const SizedBox(width: 5),
-          Text(
-            title,
-            style: TextStyle(fontSize: 24, color: color),
-          ),
-        ],
-      );
-    }
+  _iconButton(IconData icon, void Function() onPressed) {
+    return CupertinoButton(
+      padding: EdgeInsets.zero,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: controller.mode.color),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              offset: const Offset(5, 5),
+              // blurRadius: 15,
+            ),
+          ],
+        ),
+        child: Icon(icon, size: 20, color: controller.mode.color),
+      ),
+      onPressed: onPressed,
+    );
+  }
 
+  _navigationButtons() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        // back button
+        _iconButton(CupertinoIcons.clear, () {
+          // controller.pause();
+
+          // showCupertinoModalPopup(
+          //   context: context,
+          //   builder: (context) {
+          //     return Container(
+          //       height: 200,
+          //       decoration: BoxDecoration(color: Colors.white),
+          //     );
+          //   },
+          // );
+
+          // showDialog(
+          //   context: context,
+          //   barrierColor: Colors.black.withOpacity(0.5),
+          //   builder: (context) {
+          //     return Container(
+          //       height: 200,
+          //       decoration: BoxDecoration(color: Colors.white),
+          //     );
+          //   },
+          // );
+          Navigator.of(context).pop();
+        }),
+
+        _iconButton(FluentIcons.pause_24_regular, () {}),
+
+        // next button
+        _iconButton(FluentIcons.next_24_regular, () {}),
+      ],
+    );
+  }
+
+  _countdownProgressbar(int counter) {
+    return Selector<GameController, int>(
+      builder: (context, value, child) {
+        return SizedBox(
+          height: 50,
+          width: 50,
+          child: Stack(
+            children: [
+              Center(
+                child: SizedBox(
+                  // padding: const EdgeInsets.all(10)
+                  width: double.infinity,
+                  height: double.infinity,
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.grey.withOpacity(0.5),
+                    value: controller.counter / controller.mode.countdownSeconds,
+                    valueColor: AlwaysStoppedAnimation<Color>(controller.mode.color),
+                    strokeWidth: 2,
+                  ),
+                ),
+              ),
+              Center(
+                child: Text(
+                  "${counter}s",
+                  style: const TextStyle(fontSize: 20),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+      selector: (p0, p1) => p1.counter,
+    );
+  }
+
+  _gameMeta() {
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // back button
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.blue.shade300),
-                ),
-                child: const Icon(FluentIcons.arrow_left_24_regular),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-
-            // centered title
+            // title
             Text(
               "Question ${controller.currentQuestionIndex}/${controller.activeQuestions.length}",
-              style: const TextStyle(fontSize: 30),
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
-            // pause/resume button
-            CupertinoButton(
-              padding: EdgeInsets.zero,
-              child: Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: Colors.blue.shade300),
-                ),
-                child: controller.playing
-                    ? const Icon(FluentIcons.pause_24_regular)
-                    : const Icon(FluentIcons.play_24_regular),
+            Text(
+              "${controller.mode.name} mode",
+              style: TextStyle(
+                color: controller.mode.color,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
               ),
-              onPressed: () {},
             ),
           ],
         ),
@@ -139,17 +206,28 @@ class _PlayingScreenState extends State<PlayingScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // countdown timer
-            _gameMetaItem(
-              FluentIcons.clock_24_regular,
-              "${controller.counter}s",
-              Colors.grey,
+            Selector<GameController, int>(
+              builder: (context, counter, child) {
+                return _countdownProgressbar(counter);
+              },
+              selector: (p0, p1) => p1.counter,
             ),
 
             // gained scores
-            _gameMetaItem(
-              FluentIcons.reward_24_regular,
-              "${controller.scores}",
-              Colors.orange,
+            Selector<GameController, int>(
+              builder: (context, scores, child) {
+                return Row(
+                  children: [
+                    Icon(FluentIcons.heart_24_filled, size: 30, color: controller.mode.color),
+                    const SizedBox(width: 5),
+                    Text(
+                      "$scores",
+                      style: TextStyle(fontSize: 24, color: controller.mode.color),
+                    ),
+                  ],
+                );
+              },
+              selector: (p0, p1) => p1.scores,
             ),
           ],
         ),
@@ -157,6 +235,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
     );
   }
 
+  // nút trả lời (đáp án)
   _answerButtons() {
     _answerButton(Answer answer) {
       return Flexible(
@@ -172,7 +251,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.15),
+                  color: Colors.black.withOpacity(0.05),
                   offset: const Offset(5, 5),
                   // blurRadius: 20,
                 ),
@@ -180,10 +259,12 @@ class _PlayingScreenState extends State<PlayingScreen> {
               border: Border.all(color: Colors.grey.shade300),
             ),
             child: Text(
-              answer.title,
+              answer.title.toLowerCase(),
               style: TextStyle(
                 fontFamily: appFontFamily,
-                // fontSize: 20,
+                fontSize: 20,
+                color: controller.mode.color,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),

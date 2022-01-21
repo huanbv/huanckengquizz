@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'Question.dart';
 
@@ -20,14 +21,20 @@ class GameMode {
     required this.backgroundImage,
     required this.color,
   });
-}
 
-class Game {
-  final List<Question> questions;
-  final GameMode mode;
-  int scores = 0;
+  // khởi tạo instance của SharedPreferences
+  Future<SharedPreferences> get _prefs async => await SharedPreferences.getInstance();
 
-  Game(this.questions, this.mode);
+  // lấy điểm cao nhất của mode hiện tại
+  Future<int> getBestScores() async {
+    return (await _prefs).getInt(name) ?? 0;
+  }
 
-  void start() {}
+  /// Lưu điểm cao nhất
+  Future saveScores(int scores) async {
+    // so sánh, nếu điểm đưa vào :scores lớn hơn điểm cao nhất của mode hiện tại
+    if (await getBestScores() < scores) {
+      (await _prefs).setInt(name, scores);
+    }
+  }
 }

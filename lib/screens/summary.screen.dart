@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
-import 'package:huanckengquizz/models/game.dart';
+import 'package:huanckengquizz/models/game_mode.dart';
 import 'package:huanckengquizz/screens/playing.screen.dart';
 
 import '../constants.dart';
@@ -49,14 +49,16 @@ class SummaryScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
+              fontWeight: FontWeight.w700,
             ),
           ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -68,8 +70,8 @@ class SummaryScreen extends StatelessWidget {
         _gameMetaRow('Level', mode.name),
         _gameMetaRow('Total questions', "${mode.questionsLimit}"),
         _gameMetaRow('Total time', "${mode.countdownSeconds} secs"),
-        _gameMetaRow('Bonus', "+${mode.bonusScores}"),
-        _gameMetaRow('Minus', "-${mode.minusScores}"),
+        _gameMetaRow('Right answer', "+${mode.bonusScores}"),
+        _gameMetaRow('Wrong answer', "-${mode.minusScores}"),
       ],
     );
   }
@@ -82,9 +84,9 @@ class SummaryScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.shade300,
-            offset: const Offset(3, 3),
-            blurRadius: 24,
+            color: mode.color.withOpacity(0.5),
+            offset: const Offset(-10, 10),
+            // blurRadius: 50,
           ),
         ],
       ),
@@ -109,6 +111,7 @@ class SummaryScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(20.0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -143,7 +146,30 @@ class SummaryScreen extends StatelessWidget {
                   ],
                 ),
 
-                // _gameModeCard(),
+                // showing best scores of the mode
+                FutureBuilder<int>(
+                  future: mode.getBestScores(),
+                  builder: (context, snapshot) {
+                    return snapshot.hasData
+                        ? Text(
+                            "Best: ${snapshot.data!}",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                              fontWeight: FontWeight.w200,
+                              fontFamily: appFontFamily,
+                              shadows: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.5),
+                                  offset: const Offset(3, 3),
+                                  blurRadius: 10,
+                                ),
+                              ],
+                            ),
+                          )
+                        : const Text("---");
+                  },
+                ),
               ],
             ),
           ),
@@ -153,53 +179,76 @@ class SummaryScreen extends StatelessWidget {
   }
 
   _startButton(BuildContext context) {
-    return CupertinoButton(
-      onPressed: () {
-        Navigator.of(context).push(
-          CupertinoPageRoute(
-            builder: (context) => PlayingScreen(mode: mode),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            'Ready?',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
           ),
-        );
-      },
-      padding: EdgeInsets.zero,
-      child: Container(
-        alignment: Alignment.center,
-        width: double.infinity,
-        clipBehavior: Clip.antiAlias,
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        constraints: const BoxConstraints(maxHeight: 70),
-        decoration: BoxDecoration(
-          color: mode.color.withOpacity(0.75),
-          borderRadius: BorderRadius.circular(50),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.35),
-              offset: const Offset(3, 10),
-              blurRadius: 24,
-            ),
-          ],
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'Start Quizz',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w500,
-                fontSize: 24,
-                fontFamily: appFontFamily,
+        // const SizedBox(height: 10),
+        CupertinoButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              CupertinoPageRoute(
+                builder: (context) => PlayingScreen(mode: mode),
               ),
+            );
+          },
+          padding: EdgeInsets.zero,
+          child: Container(
+            alignment: Alignment.center,
+            width: double.infinity,
+            clipBehavior: Clip.antiAlias,
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            constraints: const BoxConstraints(maxHeight: 70),
+            decoration: BoxDecoration(
+              color: mode.color.withOpacity(0.75),
+              borderRadius: BorderRadius.circular(50),
+              boxShadow: [
+                BoxShadow(
+                  color: mode.color.withOpacity(0.25),
+                  offset: const Offset(3, 10),
+                  blurRadius: 15,
+                ),
+              ],
             ),
-            const SizedBox(width: 30),
-            const Icon(
-              FluentIcons.arrow_right_24_filled,
-              size: 30,
-              color: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Start Quizz',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 24,
+                    fontFamily: appFontFamily,
+                    shadows: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.25),
+                        offset: const Offset(3, 5),
+                        blurRadius: 15,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 30),
+                const Icon(
+                  CupertinoIcons.play_circle,
+                  size: 30,
+                  color: Colors.white,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+      ],
     );
   }
 }

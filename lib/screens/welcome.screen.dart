@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 
 import 'package:huanckengquizz/data/game_modes.dart';
-import 'package:huanckengquizz/models/game.dart';
+import 'package:huanckengquizz/models/game_mode.dart';
 import 'package:huanckengquizz/models/question.dart';
 import 'package:huanckengquizz/screens/summary.screen.dart';
 
@@ -61,12 +61,12 @@ class WelcomeScreen extends StatelessWidget {
                     EASY_GAMEMODE,
                     context,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
                   _gameModeButton(
                     MEDIUM_GAMEMODE,
                     context,
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
                   _gameModeButton(
                     HARD_GAMEMODE,
                     context,
@@ -100,9 +100,9 @@ class WelcomeScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade300,
-              offset: const Offset(3, 3),
-              blurRadius: 24,
+              color: mode.color.withOpacity(0.25),
+              offset: const Offset(3, 10),
+              blurRadius: 15,
             ),
           ],
         ),
@@ -126,29 +126,60 @@ class WelcomeScreen extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    mode.name,
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: appFontFamily,
-                      shadows: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.25),
-                          offset: const Offset(3, 3),
-                          blurRadius: 24,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        mode.name,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: appFontFamily,
+                          shadows: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.25),
+                              offset: const Offset(3, 3),
+                              blurRadius: 24,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      const Icon(
+                        FluentIcons.arrow_right_24_filled,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                    ],
                   ),
-                  const Icon(
-                    FluentIcons.arrow_right_24_filled,
-                    size: 30,
-                    color: Colors.white,
+
+                  // showing best scores of the mode
+                  FutureBuilder<int>(
+                    future: mode.getBestScores(),
+                    builder: (context, snapshot) {
+                      return snapshot.hasData
+                          ? Text(
+                              "Best: ${snapshot.data!}",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w200,
+                                fontFamily: appFontFamily,
+                                shadows: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5),
+                                    offset: const Offset(3, 3),
+                                    blurRadius: 10,
+                                  ),
+                                ],
+                              ),
+                            )
+                          : const Text("---");
+                    },
                   ),
                 ],
               ),
