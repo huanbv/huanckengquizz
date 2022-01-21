@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:huanckengquizz/game_controller.dart';
 import 'package:huanckengquizz/models/game_mode.dart';
 import 'package:huanckengquizz/models/question.dart';
+import 'package:huanckengquizz/screens/result.screen.dart';
 import 'package:provider/provider.dart';
 
 import '../constants.dart';
@@ -26,20 +27,22 @@ class _PlayingScreenState extends State<PlayingScreen> {
   late GameController controller;
 
   @override
-  void initState() {
-    super.initState();
-    // controller.start();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
     log('didChangeDependencies...');
 
+    // nhận instance của controller từ hàm main/MyApp
     controller = Provider.of<GameController>(context, listen: false);
     controller.start(widget.mode, () {
       log('timeout...');
+
+      // push to the result screen
+      // pushReplacement to prevent user back to the playing screen (but the summary screen)
+      Navigator.of(context).pushReplacement(
+        CupertinoPageRoute(
+          builder: (context) => ResultScreen(mode: controller.mode, scores: controller.scores),
+        ),
+      );
     });
   }
 
@@ -58,10 +61,15 @@ class _PlayingScreenState extends State<PlayingScreen> {
               const SizedBox(height: 50),
 
               // ảnh gợi ý
-              Image(
-                image: controller.currentQuestion.suggestionImage,
-                width: 200,
-                height: 200,
+              Selector<GameController, Question>(
+                builder: (context, currentQuestion, child) {
+                  return Image(
+                    image: currentQuestion.suggestionImage,
+                    width: 200,
+                    height: 200,
+                  );
+                },
+                selector: (p0, p1) => p1.currentQuestion,
               ),
 
               // các đáp án
@@ -106,35 +114,16 @@ class _PlayingScreenState extends State<PlayingScreen> {
       children: [
         // back button
         _iconButton(CupertinoIcons.clear, () {
-          // controller.pause();
-
-          // showCupertinoModalPopup(
-          //   context: context,
-          //   builder: (context) {
-          //     return Container(
-          //       height: 200,
-          //       decoration: BoxDecoration(color: Colors.white),
-          //     );
-          //   },
-          // );
-
-          // showDialog(
-          //   context: context,
-          //   barrierColor: Colors.black.withOpacity(0.5),
-          //   builder: (context) {
-          //     return Container(
-          //       height: 200,
-          //       decoration: BoxDecoration(color: Colors.white),
-          //     );
-          //   },
-          // );
+          controller.dispose();
           Navigator.of(context).pop();
         }),
 
-        _iconButton(FluentIcons.pause_24_regular, () {}),
+        _iconButton(CupertinoIcons.pause, () {}),
 
         // next button
-        _iconButton(FluentIcons.next_24_regular, () {}),
+        _iconButton(FluentIcons.next_24_regular, () {
+          controller.next();
+        }),
       ],
     );
   }
@@ -180,13 +169,18 @@ class _PlayingScreenState extends State<PlayingScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // title
-            Text(
-              "Question ${controller.currentQuestionIndex}/${controller.activeQuestions.length}",
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+            // title - current question index
+            Selector<GameController, int>(
+              builder: (context, currentQuestionIndex, child) {
+                return Text(
+                  "Question ${controller.currentQuestionIndex}/${controller.activeQuestions.length}",
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                );
+              },
+              selector: (p0, p1) => p1.currentQuestionIndex,
             ),
 
             Text(
@@ -247,7 +241,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
             decoration: BoxDecoration(
-              color: Colors.grey.shade50,
+              color: answer.isTrue ? Colors.green.shade300 : Colors.grey.shade50,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -273,27 +267,32 @@ class _PlayingScreenState extends State<PlayingScreen> {
       );
     }
 
-    var _shuffledAnswers = controller.currentQuestion.getShuffledAnswers();
-    const gap = 25.0;
+    return Selector<GameController, Question>(
+      builder: (context, currentQuestion, child) {
+        var _shuffledAnswers = controller.currentQuestion.getShuffledAnswers();
+        const gap = 25.0;
 
-    return Column(
-      children: [
-        Row(
+        return Column(
           children: [
-            _answerButton(_shuffledAnswers[0]),
-            const SizedBox(width: gap),
-            _answerButton(_shuffledAnswers[1]),
+            Row(
+              children: [
+                _answerButton(_shuffledAnswers[0]),
+                const SizedBox(width: gap),
+                _answerButton(_shuffledAnswers[1]),
+              ],
+            ),
+            const SizedBox(height: gap),
+            Row(
+              children: [
+                _answerButton(_shuffledAnswers[2]),
+                const SizedBox(width: gap),
+                _answerButton(_shuffledAnswers[3]),
+              ],
+            ),
           ],
-        ),
-        const SizedBox(height: gap),
-        Row(
-          children: [
-            _answerButton(_shuffledAnswers[2]),
-            const SizedBox(width: gap),
-            _answerButton(_shuffledAnswers[3]),
-          ],
-        ),
-      ],
+        );
+      },
+      selector: (p0, p1) => p1.currentQuestion,
     );
   }
 }

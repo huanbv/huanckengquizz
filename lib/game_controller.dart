@@ -18,7 +18,7 @@ class GameController extends ChangeNotifier {
   late void Function() onTimeout; // hàm gọi khi thời gian game kết thúc
 
   // câu hỏi hiện tại dựa vào index
-  Question get currentQuestion => activeQuestions[currentQuestionIndex];
+  Question get currentQuestion => activeQuestions[currentQuestionIndex - 1];
 
   // liệu rằng game vẫn đang chạy? (chưa bị pause)
   bool get playing => timer.isActive && counter > 0;
@@ -28,19 +28,19 @@ class GameController extends ChangeNotifier {
   });
 
   void start(GameMode mode, void Function() onTimeout) {
-    this.mode = mode;
     this.onTimeout = onTimeout;
+    this.mode = mode;
 
-    activeQuestions = _getShuffledQuestions(mode.questionsLimit);
-    counter = mode.countdownSeconds;
     scores = 0;
     currentQuestionIndex = 1;
+    counter = mode.countdownSeconds;
+    activeQuestions = _getShuffledQuestions(mode.questionsLimit);
 
     startTimer();
     log('new game');
 
     // thông báo cho giao diện cập nhật lại thông tin
-    notifyListeners();
+    // notifyListeners();
   }
 
   void startTimer() {
@@ -70,8 +70,23 @@ class GameController extends ChangeNotifier {
     startTimer();
   }
 
+  void next() {
+    if (currentQuestionIndex == activeQuestions.length) {
+      timer.cancel();
+      onTimeout();
+      return;
+    }
+
+    currentQuestionIndex++;
+    // trộn đáp án đúng của câu kế tiếp
+    activeQuestions[currentQuestionIndex - 1].shuffleTheRightAnswer();
+    notifyListeners();
+  }
+
+  @override
   void dispose() {
     timer.cancel();
+    super.dispose();
   }
 
   /// lấy danh sách câu hỏi cho game hiện tại

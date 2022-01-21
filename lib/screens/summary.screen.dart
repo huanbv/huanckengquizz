@@ -29,7 +29,7 @@ class SummaryScreen extends StatelessWidget {
               Column(
                 children: [
                   _gameModeCard(context),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 30),
                   _gameMeta(),
                 ],
               ),
@@ -68,6 +68,7 @@ class SummaryScreen extends StatelessWidget {
     return Column(
       children: [
         _gameMetaRow('Level', mode.name),
+        const SizedBox(height: 10),
         _gameMetaRow('Total questions', "${mode.questionsLimit}"),
         _gameMetaRow('Total time', "${mode.countdownSeconds} secs"),
         _gameMetaRow('Right answer', "+${mode.bonusScores}"),
@@ -85,7 +86,7 @@ class SummaryScreen extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: mode.color.withOpacity(0.5),
-            offset: const Offset(-10, 10),
+            offset: const Offset(10, 10),
             // blurRadius: 50,
           ),
         ],
@@ -102,9 +103,11 @@ class SummaryScreen extends StatelessWidget {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  mode.color.withOpacity(0.35),
+                  mode.color.withOpacity(0.75),
                   mode.color.withOpacity(0.5),
                 ],
+                begin: Alignment.bottomRight,
+                end: Alignment.topLeft,
               ),
             ),
           ),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:collection/collection.dart';
 import 'package:huanckengquizz/game_controller.dart';
@@ -27,7 +28,7 @@ class MyApp extends StatelessWidget {
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(
-            child: Text('Unable to load questions data.'),
+            child: CupertinoActivityIndicator(radius: 20),
           );
         }
 

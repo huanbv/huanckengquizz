@@ -80,10 +80,7 @@ class WelcomeScreen extends StatelessWidget {
     );
   }
 
-  _gameModeButton(
-    GameMode mode,
-    BuildContext context,
-  ) {
+  _gameModeButton(GameMode mode, BuildContext context) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
       onPressed: () {
@@ -118,9 +115,11 @@ class WelcomeScreen extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    mode.color.withOpacity(0.35),
+                    mode.color.withOpacity(0.75),
                     mode.color.withOpacity(0.5),
                   ],
+                  begin: Alignment.bottomLeft,
+                  end: Alignment.topRight,
                 ),
               ),
             ),

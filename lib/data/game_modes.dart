@@ -8,7 +8,7 @@ final EASY_GAMEMODE = GameMode(
   countdownSeconds: 30,
   bonusScores: 10,
   minusScores: 5,
-  color: Colors.blue,
+  color: Colors.blue.shade300,
 );
 
 final MEDIUM_GAMEMODE = GameMode(
@@ -18,15 +18,14 @@ final MEDIUM_GAMEMODE = GameMode(
   countdownSeconds: 20,
   bonusScores: 20,
   minusScores: 10,
-  color: Colors.orange,
+  color: Colors.blue.shade600,
 );
 
 final HARD_GAMEMODE = GameMode(
-  name: 'Hard',
-  backgroundImage: Image.asset('lib/assets/backgrounds/hard_mode.jpg').image,
-  questionsLimit: 10,
-  countdownSeconds: 10,
-  bonusScores: 30,
-  minusScores: 15,
-  color: Colors.purple,
-);
+    name: 'Hard',
+    backgroundImage: Image.asset('lib/assets/backgrounds/hard_mode.jpg').image,
+    questionsLimit: 10,
+    countdownSeconds: 10,
+    bonusScores: 30,
+    minusScores: 15,
+    color: Colors.deepPurple);
