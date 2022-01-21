@@ -1,13 +1,15 @@
 import 'dart:developer';
 
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import 'package:huanckengquizz/game_controller.dart';
 import 'package:huanckengquizz/models/game_mode.dart';
 import 'package:huanckengquizz/models/question.dart';
 import 'package:huanckengquizz/screens/result.screen.dart';
-import 'package:provider/provider.dart';
 
 import '../constants.dart';
 
@@ -23,8 +25,46 @@ class PlayingScreen extends StatefulWidget {
   State<StatefulWidget> createState() => _PlayingScreenState();
 }
 
-class _PlayingScreenState extends State<PlayingScreen> {
+class _PlayingScreenState extends State<PlayingScreen> with SingleTickerProviderStateMixin {
   late GameController controller;
+
+  // các đối tượng thực hiện animation
+  late AnimationController rightAnswerAnimationController;
+  late Animation<double> rightAnswerBottomPositionAnimation;
+  late Animation<double> rightAnswerOpacityAnimation;
+  late Animation<double> rightAnswerSizeAnimation;
+  late Tween<double> bottomPositionTween;
+  late Tween<double> opacityTween;
+  late Tween<double> sizeTween;
+
+  @override
+  void initState() {
+    super.initState();
+
+    // khởi tạo animation controller để điểu khiển việc hiển thị điểm khi người dùng chọn đáp án
+    rightAnswerAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1000),
+    );
+
+    // khởi tạo các đối tượng animation nhằm xác định giá trị khi animation chạy
+    bottomPositionTween = Tween<double>(begin: -50, end: -10);
+    opacityTween = Tween<double>(begin: 1, end: 0);
+    sizeTween = Tween<double>(begin: 0, end: 1);
+
+    rightAnswerBottomPositionAnimation = bottomPositionTween.animate(rightAnswerAnimationController);
+    rightAnswerOpacityAnimation = opacityTween.animate(rightAnswerAnimationController);
+    rightAnswerSizeAnimation = sizeTween.animate(rightAnswerAnimationController);
+  }
+
+  @override
+  void dispose() {
+    /// giải phóng các tài nguyên không dùng tới
+    rightAnswerAnimationController.dispose();
+
+    // must be call at last order
+    super.dispose();
+  }
 
   @override
   void didChangeDependencies() {
@@ -33,17 +73,42 @@ class _PlayingScreenState extends State<PlayingScreen> {
 
     // nhận instance của controller từ hàm main/MyApp
     controller = Provider.of<GameController>(context, listen: false);
-    controller.start(widget.mode, () {
-      log('timeout...');
 
-      // push to the result screen
-      // pushReplacement to prevent user back to the playing screen (but the summary screen)
-      Navigator.of(context).pushReplacement(
-        CupertinoPageRoute(
-          builder: (context) => ResultScreen(mode: controller.mode, scores: controller.scores),
-        ),
-      );
-    });
+    // gọi hàm khởi động game
+    controller.start(
+      mode: widget.mode,
+      onTimeout: () {
+        log('timeout...');
+
+        // push to the result screen
+        // pushReplacement to prevent user back to the playing screen (but can still back to the summary screen)
+        Navigator.of(context).pushReplacement(
+          CupertinoPageRoute(
+            builder: (context) => ResultScreen(controller: controller),
+          ),
+        );
+      },
+      onAnswerPicked: (bool isTrue, int receivedScores) {
+        rightAnswerAnimationController.forward().then((value) {
+          // bottomPositionTween.begin = 0;
+          // bottomPositionTween.end = -50;
+
+          // opacityTween.begin = 0;
+          // opacityTween.end = 0;
+
+          sizeTween.begin = 0;
+          sizeTween.end = 0;
+
+          // cheating
+          rightAnswerAnimationController.reverse().then((value) {
+            // opacityTween.begin = 1;
+            // opacityTween.end = 0;
+            sizeTween.begin = 0;
+            sizeTween.end = 1;
+          });
+        });
+      },
+    );
   }
 
   @override
@@ -76,6 +141,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
               const SizedBox(height: 20),
               _answerButtons(),
 
+              // các nút điều hướng
               const SizedBox(height: 20),
               _navigationButtons(),
             ],
@@ -196,33 +262,83 @@ class _PlayingScreenState extends State<PlayingScreen> {
 
         // game meta stats
         const SizedBox(height: 30),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        Stack(
+          clipBehavior: Clip.none,
           children: [
-            // countdown timer
-            Selector<GameController, int>(
-              builder: (context, counter, child) {
-                return _countdownProgressbar(counter);
-              },
-              selector: (p0, p1) => p1.counter,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                // countdown timer
+                Selector<GameController, int>(
+                  builder: (context, counter, child) {
+                    return _countdownProgressbar(counter);
+                  },
+                  selector: (p0, p1) => p1.counter,
+                ),
+
+                // gained scores
+                Selector<GameController, int>(
+                  builder: (context, scores, child) {
+                    return Row(
+                      children: [
+                        Icon(FluentIcons.heart_24_filled, size: 30, color: controller.mode.color),
+                        const SizedBox(width: 5),
+                        Text(
+                          "$scores",
+                          style: TextStyle(fontSize: 24, color: controller.mode.color),
+                        ),
+                      ],
+                    );
+                  },
+                  selector: (p0, p1) => p1.scores,
+                ),
+              ],
             ),
 
-            // gained scores
-            Selector<GameController, int>(
-              builder: (context, scores, child) {
-                return Row(
-                  children: [
-                    Icon(FluentIcons.heart_24_filled, size: 30, color: controller.mode.color),
-                    const SizedBox(width: 5),
-                    Text(
-                      "$scores",
-                      style: TextStyle(fontSize: 24, color: controller.mode.color),
+            // điểm thưởng và điểm trừ --- dành cho animation
+            AnimatedBuilder(
+              animation: rightAnswerAnimationController,
+              builder: (context, child) {
+                return Positioned(
+                  right: 0,
+                  bottom: rightAnswerBottomPositionAnimation.value,
+                  child: Opacity(
+                    opacity: rightAnswerOpacityAnimation.value,
+                    child: Transform.scale(
+                      scale: rightAnswerSizeAnimation.value,
+                      child: Text(
+                        "+${controller.mode.bonusScores}",
+                        style: const TextStyle(
+                          color: Colors.green,
+                          fontSize: 40,
+                        ),
+                      ),
                     ),
-                  ],
+                  ),
                 );
               },
-              selector: (p0, p1) => p1.scores,
             ),
+
+            // điểm trừ
+            // AnimatedBuilder(
+            //   animation: rightAnswerAnimationController,
+            //   builder: (context, child) {
+            //     return Positioned(
+            //       right: 0,
+            //       bottom: rightAnswerBottomPositionAnimation.value,
+            //       child: Opacity(
+            //         opacity: rightAnsertOpacityAnimation.value,
+            //         child: Text(
+            //           "+${controller.mode.bonusScores}",
+            //           style: const TextStyle(
+            //             color: Colors.red,
+            //             fontSize: 30,
+            //           ),
+            //         ),
+            //       ),
+            //     );
+            //   },
+            // ),
           ],
         ),
       ],
@@ -241,7 +357,7 @@ class _PlayingScreenState extends State<PlayingScreen> {
             alignment: Alignment.center,
             padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
             decoration: BoxDecoration(
-              color: answer.isTrue ? Colors.green.shade300 : Colors.grey.shade50,
+              color: Colors.grey.shade50,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
@@ -262,13 +378,14 @@ class _PlayingScreenState extends State<PlayingScreen> {
               ),
             ),
           ),
-          onPressed: () {},
+          onPressed: () => controller.onAnswerPressed(answer),
         ),
       );
     }
 
     return Selector<GameController, Question>(
       builder: (context, currentQuestion, child) {
+        // xáo trộn ví trị các đáp án trong câu hỏi hiện tại
         var _shuffledAnswers = controller.currentQuestion.getShuffledAnswers();
         const gap = 25.0;
 

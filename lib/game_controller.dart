@@ -15,7 +15,10 @@ class GameController extends ChangeNotifier {
   late List<Question> activeQuestions; // danh sách câu hỏi cho game hiện tại
   late int currentQuestionIndex; // Thứ tự hiện tại của câu hỏi
   late Timer timer; // timer dùng cho việc đếm
+
   late void Function() onTimeout; // hàm gọi khi thời gian game kết thúc
+  late void Function(bool isTrue, int receivedScores)
+      onAnswerPicked; // hàm gọi khi người dùng chọn đáp án để chạy animation
 
   // câu hỏi hiện tại dựa vào index
   Question get currentQuestion => activeQuestions[currentQuestionIndex - 1];
@@ -27,20 +30,23 @@ class GameController extends ChangeNotifier {
     required this.allQuestions,
   });
 
-  void start(GameMode mode, void Function() onTimeout) {
+  void start({
+    required GameMode mode,
+    required void Function() onTimeout,
+    required void Function(bool isTrue, int receivedScores) onAnswerPicked,
+  }) {
+    this.onAnswerPicked = onAnswerPicked;
     this.onTimeout = onTimeout;
     this.mode = mode;
 
-    scores = 0;
-    currentQuestionIndex = 1;
-    counter = mode.countdownSeconds;
+    scores = 0; // tổng điểm
+    currentQuestionIndex = 1; // câu hỏi hiện tại
+    counter = mode.countdownSeconds; // counter bắt đầu bằng tổng số giây
+    // lấy ngẫu nhiên các câu hỏi từ bộ ngân hàng câu hỏi
     activeQuestions = _getShuffledQuestions(mode.questionsLimit);
 
     startTimer();
     log('new game');
-
-    // thông báo cho giao diện cập nhật lại thông tin
-    // notifyListeners();
   }
 
   void startTimer() {
@@ -93,5 +99,22 @@ class GameController extends ChangeNotifier {
   List<Question> _getShuffledQuestions(int quantity) {
     allQuestions.shuffle(); // xáo trộn thứ tự câu hỏi trong danh sách
     return allQuestions.take(quantity).toList();
+  }
+
+  /// khi nút đáp án của một câu hỏi được nhấn
+  void onAnswerPressed(Answer answer) {
+    if (answer.isTrue) {
+      // chọn vào câu trả lời đúng
+      scores += mode.bonusScores;
+      log('right answer: +${mode.bonusScores}');
+    } else {
+      // chọn vào câu trả lời sai
+      scores -= mode.minusScores;
+      log('wrong answer: -${mode.minusScores}');
+    }
+
+    // gọi hàm callback thực thi logic animation ở Screen
+    onAnswerPicked(answer.isTrue, answer.isTrue ? mode.bonusScores : mode.minusScores);
+    next();
   }
 }

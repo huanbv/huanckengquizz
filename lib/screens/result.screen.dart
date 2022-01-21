@@ -1,19 +1,17 @@
 import 'package:fluentui_system_icons/fluentui_system_icons.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:huanckengquizz/models/game_mode.dart';
 
 import '../constants.dart';
+import '../game_controller.dart';
 
 class ResultScreen extends StatelessWidget {
   const ResultScreen({
     Key? key,
-    required this.mode,
-    required this.scores,
+    required this.controller,
   }) : super(key: key);
 
-  final GameMode mode;
-  final int scores;
+  final GameController controller;
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +38,7 @@ class ResultScreen extends StatelessWidget {
     return CupertinoButton(
       onPressed: () {
         Navigator.of(context).pop();
-        Navigator.of(context).pop();
+        // Navigator.of(context).pop();
       },
       padding: EdgeInsets.zero,
       child: Container(
@@ -50,11 +48,11 @@ class ResultScreen extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 10),
         constraints: const BoxConstraints(maxHeight: 70),
         decoration: BoxDecoration(
-          color: mode.color.withOpacity(0.75),
+          color: controller.mode.color.withOpacity(0.75),
           borderRadius: BorderRadius.circular(50),
           boxShadow: [
             BoxShadow(
-              color: mode.color.withOpacity(0.25),
+              color: controller.mode.color.withOpacity(0.25),
               offset: const Offset(3, 10),
               blurRadius: 15,
             ),

@@ -68,7 +68,7 @@ class SummaryScreen extends StatelessWidget {
     return Column(
       children: [
         _gameMetaRow('Level', mode.name),
-        const SizedBox(height: 10),
+        // const SizedBox(height: 10),
         _gameMetaRow('Total questions', "${mode.questionsLimit}"),
         _gameMetaRow('Total time', "${mode.countdownSeconds} secs"),
         _gameMetaRow('Right answer', "+${mode.bonusScores}"),
